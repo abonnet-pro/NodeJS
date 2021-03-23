@@ -10,7 +10,7 @@ module.exports = class ListDAO extends BaseDAO
     insert(list)
     {
         return new Promise((resolve, reject) => {
-            this.db.query("INSERT INTO list() VALUES($1, $2, $3) RETURNING ID", [/* params */])
+            this.db.query("INSERT INTO list(shop, date, archived) VALUES($1, $2, $3) RETURNING ID", [list.shop, list.date, list.archived])
                 .then(res => resolve(res.rows[0].id))
                 .catch(err => reject(err))
         })

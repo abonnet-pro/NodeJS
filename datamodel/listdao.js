@@ -24,4 +24,10 @@ module.exports = class ListDAO extends BaseDAO
                 .catch(err => reject(err))
         })
     }
+
+    update(list)
+    {
+        return this.db.query("UPDATE list SET shop=$2,date=$3,archived=$4 WHERE id=$1",
+            [list.id, list.shop, list.date, list.archived])
+    }
 }

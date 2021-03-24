@@ -1,13 +1,13 @@
-module.exports = (app, listService) =>
+module.exports = (app, itemService) =>
 {
-    app.get("/list", async (req, res) => {
-        res.json(await listService.dao.getAll())
+    app.get("/item", async (req, res) => {
+        res.json(await itemService.dao.getAll())
     })
 
-    app.get("/list/:id", async (req, res) => {
+    app.get("/item/:id", async (req, res) => {
         try
         {
-            const list = await listService.dao.getById(req.params.id)
+            const list = await itemService.dao.getById(req.params.id)
             if(list === undefined)
             {
                 res.status(404).end() // aucun resultat
@@ -19,13 +19,28 @@ module.exports = (app, listService) =>
         }
     })
 
-    app.post("/list", (req, res) => {
-        const list = req.body
-        if (!listService.isValid(list))
+    app.get("/item/list/:id", async (req, res) => {
+        try
+        {
+            const item = await itemService.dao.getAllByList(req.params.id)
+            if(item === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(item)
+        }
+        catch (e) {
+            res.status(400).end()
+        }
+    })
+
+    app.post("/item", (req, res) => {
+        const item = req.body
+        if (!itemService.isValid(item))
         {
             return res.status(400).end()
         }
-        listService.dao.insert(list)
+        itemService.dao.insert(item)
             .then(res.status(200).end())
             .catch(e => {
                 console.log(e)
@@ -33,15 +48,15 @@ module.exports = (app, listService) =>
             })
     })
 
-    app.delete("/list/:id", async (req, res) => {
+    app.delete("/item/:id", async (req, res) => {
         try
         {
-            const list = await listService.dao.getById(req.params.id)
+            const list = await itemService.dao.getById(req.params.id)
             if (list === undefined)
             {
                 return res.status(404).end()
             }
-            listService.dao.delete(req.params.id)
+            itemService.dao.delete(req.params.id)
                 .then(res.status(200).end())
                 .catch(e => {
                     console.log(e)
@@ -55,17 +70,17 @@ module.exports = (app, listService) =>
         }
     })
 
-    app.put("/list", async (req, res) => {
-        const list = req.body
-        if ((list.id === undefined) || (list.id == null) || (!listService.isValid(list)))
+    app.put("/item", async (req, res) => {
+        const item = req.body
+        if ((item.id === undefined) || (item.id == null) || (!itemService.isValid(item)))
         {
             return res.status(400).end()
         }
-        if (await listService.dao.getById(list.id) === undefined)
+        if (await itemService.dao.getById(item.id) === undefined)
         {
             return res.status(404).end()
         }
-        listService.dao.update(list)
+        itemService.dao.update(item)
             .then(res.status(200).end())
             .catch(e => {
                 console.log(e)

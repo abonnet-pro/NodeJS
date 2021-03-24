@@ -20,6 +20,7 @@ const itemService = new ItemService(db)
 const listService = new ListService(db)
 
 require('./api/list')(app, listService)
+require('./api/item')(app, itemService)
 require('./datamodel/seeder')(itemService, listService)
     .then(_ => app.listen(3333))
 

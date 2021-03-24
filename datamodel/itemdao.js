@@ -24,4 +24,19 @@ module.exports = class ItemDAO extends BaseDAO
                 .catch(err => reject(err))
         })
     }
+
+    getAllByList(list)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT * FROM item WHERE item.idlist = $1", [list])
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
+
+    update(item)
+    {
+        return this.db.query("UPDATE item SET idList=$2,label=$3,quantity=$4, checked=$5 WHERE id=$1",
+            [item.id, item.idList, item.label, item.quantity, item.checked])
+    }
 }

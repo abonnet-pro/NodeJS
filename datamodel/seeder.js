@@ -19,7 +19,7 @@ module.exports = (itemService, listService) => {
         catch (e)
         {
             if (e.code === "42P07")
-            { // TABLE ALREADY EXISTS https://www.postgresql.org/docs/8.2/errcodes-appendix.html
+            {
                 resolve()
             }
             else

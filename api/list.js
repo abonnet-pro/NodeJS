@@ -1,4 +1,4 @@
-module.exports = (app, listService) =>
+module.exports = (app, listService, itemService) =>
 {
     app.get("/list", async (req, res) => {
         res.json(await listService.dao.getAll())
@@ -36,6 +36,12 @@ module.exports = (app, listService) =>
     app.delete("/list/:id", async (req, res) => {
         try
         {
+            const count = await itemService.dao.countByList(req.params.id)
+            if(count > 0)
+            {
+                return res.status(500).end()
+            }
+
             const list = await listService.dao.getById(req.params.id)
             if (list === undefined)
             {

@@ -10,7 +10,7 @@ module.exports = class ItemDAO extends BaseDAO
     insert(item)
     {
         return new Promise((resolve, reject) => {
-            this.db.query("INSERT INTO item(idList, label, quantity, checked) VALUES($1, $2, $3, $4) RETURNING ID", [item.idList, item.label, item.quantity, item.checked])
+            this.db.query("INSERT INTO item(idlist, label, quantity, checked) VALUES($1, $2, $3, $4) RETURNING ID", [item.idlist, item.label, item.quantity, item.checked])
                 .then(res => resolve(res.rows[0].id))
                 .catch(err => reject(err))
         })
@@ -34,9 +34,18 @@ module.exports = class ItemDAO extends BaseDAO
         })
     }
 
+    countByList(list)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT count(*) FROM item WHERE item.idlist = $1", [list])
+                .then(res => resolve(res.rows[0].count))
+                .catch(err => reject(err))
+        })
+    }
+
     update(item)
     {
-        return this.db.query("UPDATE item SET idList=$2,label=$3,quantity=$4, checked=$5 WHERE id=$1",
-            [item.id, item.idList, item.label, item.quantity, item.checked])
+        return this.db.query("UPDATE item SET idlist=$2,label=$3,quantity=$4, checked=$5 WHERE id=$1",
+            [item.id, item.idlist, item.label, item.quantity, item.checked])
     }
 }

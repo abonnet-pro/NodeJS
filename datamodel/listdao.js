@@ -19,7 +19,16 @@ module.exports = class ListDAO extends BaseDAO
     getAll()
     {
         return new Promise((resolve, reject) => {
-            this.db.query("SELECT * FROM list")
+            this.db.query("SELECT * FROM list WHERE archived = false")
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
+
+    getAllArchivedList()
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT * FROM list WHERE archived = true")
                 .then(res => resolve(res.rows))
                 .catch(err => reject(err))
         })

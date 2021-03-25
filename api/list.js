@@ -1,7 +1,33 @@
 module.exports = (app, listService, itemService) =>
 {
-    app.get("/list", async (req, res) => {
-        res.json(await listService.dao.getAll())
+    app.get("/list/", async (req, res) => {
+        try
+        {
+            const list = await listService.dao.getAll()
+            if(list === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(list)
+        }
+        catch (e) {
+            res.status(400).end()
+        }
+    })
+
+    app.get("/list/archived", async (req, res) => {
+        try
+        {
+            const list = await listService.dao.getAllArchivedList()
+            if(list === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(list)
+        }
+        catch (e) {
+            res.status(400).end()
+        }
     })
 
     app.get("/list/:id", async (req, res) => {
@@ -10,12 +36,13 @@ module.exports = (app, listService, itemService) =>
             const list = await listService.dao.getById(req.params.id)
             if(list === undefined)
             {
-                res.status(404).end() // aucun resultat
+                res.status(404).end()
             }
-            return res.json(list) // ok
+            return res.json(list)
         }
-        catch (e) {
-            res.status(400).end() // requete incorrect (parametres)
+        catch (e)
+        {
+            res.status(400).end()
         }
     })
 

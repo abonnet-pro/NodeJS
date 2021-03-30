@@ -1,9 +1,9 @@
-module.exports = (app, listService, itemService) =>
+module.exports = (app, listService, itemService, jwt) =>
 {
-    app.get("/list/", async (req, res) => {
+    app.get("/list/", jwt.validateJWT, async (req, res) => {
         try
         {
-            const list = await listService.dao.getAll()
+            const list = await listService.dao.getAll(req.user)
             if(list === undefined)
             {
                 res.status(404).end()
@@ -15,10 +15,10 @@ module.exports = (app, listService, itemService) =>
         }
     })
 
-    app.get("/list/archived", async (req, res) => {
+    app.get("/list/archived", jwt.validateJWT,async (req, res) => {
         try
         {
-            const list = await listService.dao.getAllArchivedList()
+            const list = await listService.dao.getAllArchivedList(req.user)
             if(list === undefined)
             {
                 res.status(404).end()
@@ -30,13 +30,16 @@ module.exports = (app, listService, itemService) =>
         }
     })
 
-    app.get("/list/:id", async (req, res) => {
+    app.get("/list/:id", jwt.validateJWT,async (req, res) => {
         try
         {
             const list = await listService.dao.getById(req.params.id)
             if(list === undefined)
             {
                 res.status(404).end()
+            }
+            if (list.iduser !== req.user.id) {
+                return res.status(403).end()
             }
             return res.json(list)
         }
@@ -46,12 +49,14 @@ module.exports = (app, listService, itemService) =>
         }
     })
 
-    app.post("/list", (req, res) => {
+    app.post("/list", jwt.validateJWT,(req, res) => {
         const list = req.body
         if (!listService.isValid(list))
         {
             return res.status(400).end()
         }
+
+        list.idUser = req.user.id
         listService.dao.insert(list)
             .then(res.status(200).end())
             .catch(e => {
@@ -60,20 +65,25 @@ module.exports = (app, listService, itemService) =>
             })
     })
 
-    app.delete("/list/:id", async (req, res) => {
+    app.delete("/list/:id", jwt.validateJWT, async (req, res) => {
         try
         {
+            /* TODO : modifier la suppression lors d'une liste non vide
             const count = await itemService.dao.countByList(req.params.id)
             if(count > 0)
             {
                 return res.status(500).end()
-            }
+            }*/
 
             const list = await listService.dao.getById(req.params.id)
             if (list === undefined)
             {
                 return res.status(404).end()
             }
+            if (list.iduser !== req.user.id) {
+                return res.status(403).end()
+            }
+
             listService.dao.delete(req.params.id)
                 .then(res.status(200).end())
                 .catch(e => {
@@ -88,16 +98,22 @@ module.exports = (app, listService, itemService) =>
         }
     })
 
-    app.put("/list", async (req, res) => {
+    app.put("/list", jwt.validateJWT, async (req, res) => {
         const list = req.body
         if ((list.id === undefined) || (list.id == null) || (!listService.isValid(list)))
         {
             return res.status(400).end()
         }
-        if (await listService.dao.getById(list.id) === undefined)
+        const prevList = await listService.dao.getById(list.id)
+        if (prevList === undefined)
         {
             return res.status(404).end()
         }
+        if(prevList.iduser !== req.user.id)
+        {
+            return res.status(403).end()
+        }
+
         listService.dao.update(list)
             .then(res.status(200).end())
             .catch(e => {

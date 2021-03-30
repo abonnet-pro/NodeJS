@@ -10,25 +10,25 @@ module.exports = class ListDAO extends BaseDAO
     insert(list)
     {
         return new Promise((resolve, reject) => {
-            this.db.query("INSERT INTO list(shop, date, archived) VALUES($1, $2, $3) RETURNING ID", [list.shop, list.date, list.archived])
+            this.db.query("INSERT INTO list(iduser, shop, date, archived) VALUES($1, $2, $3, $4) RETURNING ID", [list.idUser ,list.shop, list.date, list.archived])
                 .then(res => resolve(res.rows[0].id))
                 .catch(err => reject(err))
         })
     }
 
-    getAll()
+    getAll(user)
     {
         return new Promise((resolve, reject) => {
-            this.db.query("SELECT * FROM list WHERE archived = false")
+            this.db.query("SELECT * FROM list WHERE iduser = $1 AND archived = false", [user.id])
                 .then(res => resolve(res.rows))
                 .catch(err => reject(err))
         })
     }
 
-    getAllArchivedList()
+    getAllArchivedList(user)
     {
         return new Promise((resolve, reject) => {
-            this.db.query("SELECT * FROM list WHERE archived = true")
+            this.db.query("SELECT * FROM list WHERE iduser = $1 AND archived = true", [user.id])
                 .then(res => resolve(res.rows))
                 .catch(err => reject(err))
         })

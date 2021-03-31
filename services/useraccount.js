@@ -9,6 +9,21 @@ module.exports = class UserAccountService
         this.dao = new UserAccountDAO(db)
     }
 
+    isValid(useraccount)
+    {
+        useraccount.displayname = useraccount.displayname.trim()
+        if (useraccount.displayname === "") return false
+        if(useraccount.login == null) return false
+        if (useraccount.password == null) return false
+        return true
+    }
+
+    async isLoginValid(login)
+    {
+        const user = await this.dao.getByLogin(login.trim())
+        return (user === undefined)
+    }
+
     insert(displayname, login, password)
     {
         return this.dao.insert(new UserAccount(displayname, login, this.hashPassword(password)))

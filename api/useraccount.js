@@ -18,4 +18,22 @@ module.exports = (app, svc, jwt) => {
                 res.status(500).end()
             })
     })
+
+    app.post('/useraccount/create', async (req, res) => {
+        const useraccount = req.body
+        if(!svc.isValid(useraccount))
+        {
+            return res.status(400).end()
+        }
+        if(! await svc.isLoginValid(useraccount.login))
+        {
+            return res.status(406).end()
+        }
+        svc.insert(useraccount.displayname, useraccount.login, useraccount.password)
+            .then(res.status(200).end())
+            .catch(e => {
+                console.log(e)
+                res.status(500).end()
+            })
+    })
 }

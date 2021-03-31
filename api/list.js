@@ -68,13 +68,6 @@ module.exports = (app, listService, itemService, jwt) =>
     app.delete("/list/:id", jwt.validateJWT, async (req, res) => {
         try
         {
-            /* TODO : modifier la suppression lors d'une liste non vide
-            const count = await itemService.dao.countByList(req.params.id)
-            if(count > 0)
-            {
-                return res.status(500).end()
-            }*/
-
             const list = await listService.dao.getById(req.params.id)
             if (list === undefined)
             {

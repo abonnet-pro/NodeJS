@@ -32,13 +32,15 @@ module.exports = (app, itemService, listService, jwt) =>
             {
                 res.status(404).end()
             }
-            const list = await listService.dao.getById(item[0].idlist)
+
+            const list = await listService.dao.getById(req.params.id)
             if (list.iduser !== req.user.id) {
                 return res.status(403).end()
             }
             return res.json(item)
         }
-        catch (e) {
+        catch (e)
+        {
             res.status(400).end()
         }
     })
@@ -49,7 +51,9 @@ module.exports = (app, itemService, listService, jwt) =>
         {
             return res.status(400).end()
         }
-        const list = await listService.dao.getById(item.idList)
+        const list = await listService.dao.getById(item.idlist)
+        console.log(item)
+        console.log(list)
         if (list.iduser !== req.user.id) {
             return res.status(403).end()
         }

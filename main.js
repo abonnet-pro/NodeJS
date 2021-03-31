@@ -23,7 +23,7 @@ const userAccountService = new UserAccountService(db)
 const jwt = require('./jwt')(userAccountService)
 
 require('./api/list')(app, listService, itemService, jwt)
-require('./api/item')(app, itemService)
+require('./api/item')(app, itemService, listService, jwt)
 require('./api/useraccount')(app, userAccountService, jwt)
 require('./datamodel/seeder')(userAccountService, itemService, listService)
     .then(_ => app.listen(3333))

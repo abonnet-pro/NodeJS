@@ -54,4 +54,20 @@ module.exports = (app, svc, jwt) => {
             res.status(400).end()
         }
     })
+
+    app.get("/useraccount/id/:id", jwt.validateJWT, async (req, res) => {
+        try
+        {
+            const useraccount = await svc.dao.getById(req.params.id)
+            if(useraccount === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(useraccount)
+        }
+        catch (e)
+        {
+            res.status(400).end()
+        }
+    })
 }

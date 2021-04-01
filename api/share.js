@@ -16,4 +16,19 @@ module.exports = (app, shareService, jwt) =>
                 res.status(500).end()
             })
     })
+
+    app.get("/share/send/:id", jwt.validateJWT,async (req, res) => {
+        try
+        {
+            const shares = await shareService.dao.getShareSendByList(req.user.id, req.params.id)
+            if(shares === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(shares)
+        }
+        catch (e) {
+            res.status(400).end()
+        }
+    })
 }

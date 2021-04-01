@@ -8,6 +8,4 @@ module.exports = class Item
         this.quantity = quantity
         this.checked = false
     }
-
-
 }

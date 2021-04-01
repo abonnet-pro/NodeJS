@@ -21,6 +21,7 @@ module.exports = (app, svc, jwt) => {
 
     app.post('/useraccount/create', async (req, res) => {
         const useraccount = req.body
+        console.log(useraccount)
         if(!svc.isValid(useraccount))
         {
             return res.status(400).end()
@@ -35,5 +36,22 @@ module.exports = (app, svc, jwt) => {
                 console.log(e)
                 res.status(500).end()
             })
+    })
+
+    app.get("/useraccount/:login", jwt.validateJWT, async (req, res) => {
+        try
+        {
+            const userList = await svc.dao.getLikeLogin(req.params.login)
+            if(userList === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(userList)
+        }
+        catch (e)
+        {
+            console.log(e.toString())
+            res.status(400).end()
+        }
     })
 }

@@ -33,4 +33,13 @@ module.exports = class ShareDAO extends BaseDAO
                 .catch(err => reject(err))
         })
     }
+
+    checkShareExist(idusersend, iduserreceive, idlist)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT * FROM share WHERE idusersend = $1 AND iduserreceive = $2 AND idlist = $3", [idusersend, iduserreceive, idlist])
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
 }

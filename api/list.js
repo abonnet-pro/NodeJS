@@ -1,4 +1,4 @@
-module.exports = (app, listService, itemService, jwt) =>
+module.exports = (app, listService, itemService, shareService, jwt) =>
 {
     app.get("/list/", jwt.validateJWT, async (req, res) => {
         try
@@ -30,15 +30,33 @@ module.exports = (app, listService, itemService, jwt) =>
         }
     })
 
-    app.get("/list/:id", jwt.validateJWT,async (req, res) => {
+    app.get("/list/share", jwt.validateJWT,async (req, res) => {
         try
         {
-            const list = await listService.dao.getById(req.params.id)
+            const list = await listService.dao.getShareListReceive(req.user.id)
             if(list === undefined)
             {
                 res.status(404).end()
             }
-            if (list.iduser !== req.user.id) {
+            return res.json(list)
+        }
+        catch (e) {
+            res.status(400).end()
+        }
+    })
+
+    app.get("/list/:id", jwt.validateJWT,async (req, res) => {
+        try
+        {
+            const list = await listService.dao.getById(req.params.id)
+
+            if(list === undefined)
+            {
+                res.status(404).end()
+            }
+
+            if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id))
+            {
                 return res.status(403).end()
             }
             return res.json(list)
@@ -73,7 +91,7 @@ module.exports = (app, listService, itemService, jwt) =>
             {
                 return res.status(404).end()
             }
-            if (list.iduser !== req.user.id) {
+            if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
                 return res.status(403).end()
             }
 
@@ -102,7 +120,7 @@ module.exports = (app, listService, itemService, jwt) =>
         {
             return res.status(404).end()
         }
-        if(prevList.iduser !== req.user.id)
+        if(prevList.iduser !== req.user.id && !await shareService.isListShare(prevList.iduser, req.user.id))
         {
             return res.status(403).end()
         }

@@ -1,4 +1,4 @@
-module.exports = (app, itemService, listService, jwt) =>
+module.exports = (app, itemService, listService, shareService, jwt) =>
 {
     app.get("/item", jwt.validateJWT, async (req, res) => {
         res.json(await itemService.dao.getAll())
@@ -14,7 +14,7 @@ module.exports = (app, itemService, listService, jwt) =>
                 res.status(404).end() // aucun resultat
             }
             const list = await listService.dao.getById(item.idlist)
-            if (list.iduser !== req.user.id) {
+            if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
                 return res.status(403).end()
             }
             return res.json(item) // ok
@@ -34,7 +34,7 @@ module.exports = (app, itemService, listService, jwt) =>
             }
 
             const list = await listService.dao.getById(req.params.id)
-            if (list.iduser !== req.user.id) {
+            if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
                 return res.status(403).end()
             }
             return res.json(item)
@@ -52,9 +52,8 @@ module.exports = (app, itemService, listService, jwt) =>
             return res.status(400).end()
         }
         const list = await listService.dao.getById(item.idlist)
-        console.log(item)
-        console.log(list)
-        if (list.iduser !== req.user.id) {
+
+        if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
             return res.status(403).end()
         }
         itemService.dao.insert(item)
@@ -74,7 +73,7 @@ module.exports = (app, itemService, listService, jwt) =>
                 return res.status(404).end()
             }
             const list = await listService.dao.getById(item.idlist)
-            if (list.iduser !== req.user.id) {
+            if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
                 return res.status(403).end()
             }
             itemService.dao.delete(req.params.id)
@@ -102,7 +101,7 @@ module.exports = (app, itemService, listService, jwt) =>
             return res.status(404).end()
         }
         const list = await listService.dao.getById(item.idlist)
-        if (list.iduser !== req.user.id) {
+        if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
             return res.status(403).end()
         }
         itemService.dao.update(item)

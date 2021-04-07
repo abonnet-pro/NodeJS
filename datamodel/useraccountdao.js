@@ -24,10 +24,10 @@ module.exports = class UserAccountDAO extends BaseDAO
                 .catch(e => reject(e)))
     }
 
-    getLikeLogin(login)
+    getLikeLogin(login, userId)
     {
         return new Promise((resolve, reject) => {
-            this.db.query("SELECT id, displayname, login FROM useraccount WHERE login LIKE $1 || '%' OR displayname LIKE $1 || '%'", [login])
+            this.db.query("SELECT id, displayname, login FROM useraccount WHERE login LIKE $1 || '%' OR displayname LIKE $1 || '%' AND id != $2", [login, userId])
                 .then(res => resolve(res.rows))
                 .catch(err => reject(err))
         })

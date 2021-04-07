@@ -34,6 +34,15 @@ module.exports = class ListDAO extends BaseDAO
         })
     }
 
+    getShareListReceive(iduserreceive)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT list.* FROM share INNER JOIN list ON share.idlist = list.id WHERE iduserreceive = $1 and list.archived = false", [iduserreceive])
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
+
     update(list)
     {
         return this.db.query("UPDATE list SET shop=$2,date=$3,archived=$4 WHERE id=$1",

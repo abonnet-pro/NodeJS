@@ -41,7 +41,7 @@ module.exports = (app, svc, jwt) => {
     app.get("/useraccount/:login", jwt.validateJWT, async (req, res) => {
         try
         {
-            const userList = await svc.dao.getLikeLogin(req.params.login)
+            const userList = await svc.dao.getLikeLogin(req.params.login, req.user.id)
             if(userList === undefined)
             {
                 res.status(404).end()

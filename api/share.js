@@ -25,7 +25,7 @@ module.exports = (app, shareService, jwt) =>
             {
                 res.status(404).end()
             }
-            if (share.idusersend !== req.user.id) {
+            if (share.idusersend !== req.user.id && !await shareService.isListShare(share.idusersend, req.user.id)) {
                 return res.status(403).end()
             }
             return res.json(share)
@@ -75,7 +75,7 @@ module.exports = (app, shareService, jwt) =>
                 return res.status(404).end()
             }
 
-            if (share.idusersend !== req.user.id) {
+            if (share.idusersend !== req.user.id && !await shareService.isListShare(share.idusersend, req.user.id)) {
                 return res.status(403).end()
             }
             shareService.dao.delete(req.params.id)

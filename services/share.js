@@ -15,4 +15,11 @@ module.exports = class ShareService
         if (share.modification === null) return false
         return true
     }
+
+    async isListShare(list, userId)
+    {
+        const shares = await this.dao.getShareReceiveBySend(list.iduser, userId)
+
+        return shares.length === 0;
+    }
 }

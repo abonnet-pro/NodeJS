@@ -34,6 +34,15 @@ module.exports = class ShareDAO extends BaseDAO
         })
     }
 
+    getShareReceive(iduserreceive)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT * FROM share WHERE iduserreceive = $1", [iduserreceive])
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
+
     getShareSendByList(idusersend, idlist)
     {
         return new Promise((resolve, reject) => {

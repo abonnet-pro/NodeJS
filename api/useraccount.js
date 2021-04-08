@@ -19,6 +19,28 @@ module.exports = (app, svc, jwt) => {
             })
     })
 
+    app.post('/useraccount/token', jwt.validateJWT, async (req, res) => {
+        const userId = req.user.id
+        if(userId === undefined)
+        {
+            res.status(400).end()
+            return
+        }
+        try
+        {
+            const user = await svc.dao.getById(userId)
+            if(user === undefined)
+            {
+                res.status(404).end()
+            }
+            res.json({'token': jwt.generateJWT(user.login)})
+        }
+        catch (e) {
+            res.status(400).end()
+        }
+
+    })
+
     app.post('/useraccount/create', async (req, res) => {
         const useraccount = req.body
         console.log(useraccount)

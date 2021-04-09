@@ -68,12 +68,25 @@ module.exports = (app, svc, dirName, jwt) => {
     app.get("/useraccount/mail/:login", async (req, res) => {
         try
         {
-            const user = await svc.dao.getByLogin(req.params.login)
+            let user = await svc.dao.getByLogin(req.params.login)
             if(user === undefined)
             {
                 res.status(404).end()
             }
-            svc.sendConfirmationEmail(user)
+            if(!user.active)
+            {
+                user.confirmation = svc.generateConfirmation()
+                user.confirmationdate = new Date().toUTCString()
+
+                await svc.dao.update(user)
+                    .catch(e => {
+                        console.log(e)
+                        res.status(500).end()
+                    })
+
+                svc.sendConfirmationEmail(user)
+            }
+
             res.status(200).end()
         }
         catch (e)
@@ -87,12 +100,19 @@ module.exports = (app, svc, dirName, jwt) => {
         try
         {
             let user = await svc.dao.getByConfirmation(req.params.confirmationCode)
-            // TODO : verifier la validité du lien ( > 24h ?)
             if(user === undefined)
             {
                 res.status(404).end()
             }
+
+            if(svc.getHoursDifference(user.confirmationdate) >= 24 && !user.active)
+            {
+                res.sendFile(`${dirName}\\view\\expire.html`)
+                return
+            }
+
             user.active = true
+
             await svc.dao.update(user)
                 .then( res.sendFile(`${dirName}\\view\\confirmation.html`))
                 .catch(e => {

@@ -28,7 +28,7 @@ module.exports = class UserAccountService
 
     insert(displayname, login, password)
     {
-        return this.dao.insert(new UserAccount(displayname, login, this.hashPassword(password), false, this.generateConfirmation()))
+        return this.dao.insert(new UserAccount(displayname, login, this.hashPassword(password), false, null, null))
     }
 
     async validatePassword(login, password)
@@ -85,5 +85,13 @@ module.exports = class UserAccountService
                    <p>Nous vous remercions de votre inscription. Merci de verifier votre email en cliquant sur le lien ci-dessous</p>
                     <a href=http://localhost:3333/useraccount/confirm/${user.confirmation}> Cliquer ici</a>`
         }).catch(err => console.log(err))
+    }
+
+    getHoursDifference(date)
+    {
+        const milliseconds = new Date().getTime() - date.getTime()
+        const seconds = milliseconds / 1000
+        const minuts = seconds / 60
+        return Math.trunc(minuts / 60)
     }
 }

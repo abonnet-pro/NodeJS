@@ -1,4 +1,4 @@
-module.exports = (app, svc, jwt) => {
+module.exports = (app, svc, dirName, jwt) => {
     app.post('/useraccount/authenticate', (req, res) => {
         const { login, password } = req.body
         if ((login === undefined) || (password === undefined)) {
@@ -6,9 +6,14 @@ module.exports = (app, svc, jwt) => {
             return
         }
         svc.validatePassword(login, password)
-            .then(authenticated => {
+            .then(async authenticated => {
                 if (!authenticated) {
                     res.status(401).end()
+                    return
+                }
+                if(! await svc.validateEmail(login))
+                {
+                    res.status(403).end()
                     return
                 }
                 res.json({'token': jwt.generateJWT(login)})
@@ -58,6 +63,48 @@ module.exports = (app, svc, jwt) => {
                 console.log(e)
                 res.status(500).end()
             })
+    })
+
+    app.get("/useraccount/mail/:login", async (req, res) => {
+        try
+        {
+            const user = await svc.dao.getByLogin(req.params.login)
+            if(user === undefined)
+            {
+                res.status(404).end()
+            }
+            svc.sendConfirmationEmail(user)
+            res.status(200).end()
+        }
+        catch (e)
+        {
+            console.log(e)
+            res.status(400).end()
+        }
+    })
+
+    app.get("/useraccount/confirm/:confirmationCode", async (req, res) => {
+        try
+        {
+            let user = await svc.dao.getByConfirmation(req.params.confirmationCode)
+            // TODO : verifier la validité du lien ( > 24h ?)
+            if(user === undefined)
+            {
+                res.status(404).end()
+            }
+            user.active = true
+            await svc.dao.update(user)
+                .then( res.sendFile(`${dirName}\\view\\confirmation.html`))
+                .catch(e => {
+                    console.log(e)
+                    res.status(500).end()
+                })
+        }
+        catch (e)
+        {
+            console.log(e)
+            res.status(400).end()
+        }
     })
 
     app.get("/useraccount/:login", jwt.validateJWT, async (req, res) => {

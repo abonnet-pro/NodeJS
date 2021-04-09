@@ -23,10 +23,11 @@ const listService = new ListService(db)
 const userAccountService = new UserAccountService(db)
 const shareService = new ShareService(db)
 const jwt = require('./jwt')(userAccountService)
+const dirName = __dirname
 
 require('./api/list')(app, listService, itemService, shareService, jwt)
 require('./api/item')(app, itemService, listService, shareService, jwt)
-require('./api/useraccount')(app, userAccountService, jwt)
+require('./api/useraccount')(app, userAccountService, dirName, jwt)
 require('./api/share')(app, shareService, jwt)
 require('./datamodel/seeder')(userAccountService, itemService, listService, shareService)
     .then(_ => app.listen(3333))

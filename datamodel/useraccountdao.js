@@ -32,6 +32,14 @@ module.exports = class UserAccountDAO extends BaseDAO
                 .catch(err => reject(err)))
     }
 
+    getByResetCode(resetCode)
+    {
+        return new Promise((resolve, reject) =>
+            this.db.query("SELECT * FROM useraccount WHERE reset=$1", [resetCode])
+                .then(res => resolve(res.rows[0]))
+                .catch(err => reject(err)))
+    }
+
     getLikeLogin(login, userId)
     {
         return new Promise((resolve, reject) => {
@@ -43,7 +51,7 @@ module.exports = class UserAccountDAO extends BaseDAO
 
     update(useraccount)
     {
-        return this.db.query("UPDATE useraccount SET displayname=$1,login=$2,active=$3, confirmation=$4, confirmationdate=$5 WHERE id=$6",
-            [useraccount.displayname, useraccount.login, useraccount.active, useraccount.confirmation, useraccount.confirmationdate, useraccount.id])
+        return this.db.query("UPDATE useraccount SET displayname=$1, login=$2, challenge=$3, active=$4, confirmation=$5, confirmationdate=$6, reset=$7, resetdate=$8 WHERE id=$9",
+            [useraccount.displayname, useraccount.login, useraccount.challenge,useraccount.active, useraccount.confirmation, useraccount.confirmationdate, useraccount.reset, useraccount.resetdate, useraccount.id])
     }
 }

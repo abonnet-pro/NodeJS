@@ -75,7 +75,7 @@ module.exports = (app, svc, dirName, jwt) => {
             }
             if(!user.active)
             {
-                user.confirmation = svc.generateConfirmation()
+                user.confirmation = svc.generateLink()
                 user.confirmationdate = new Date().toUTCString()
 
                 await svc.dao.update(user)
@@ -87,6 +87,34 @@ module.exports = (app, svc, dirName, jwt) => {
                 svc.sendConfirmationEmail(user)
             }
 
+            res.status(200).end()
+        }
+        catch (e)
+        {
+            console.log(e)
+            res.status(400).end()
+        }
+    })
+
+    app.get("/useraccount/resetPassword/:login", async (req, res) => {
+        try
+        {
+            let user = await svc.dao.getByLogin(req.params.login)
+            if(user === undefined)
+            {
+                res.status(404).end()
+            }
+
+            user.reset = svc.generateLink()
+            user.resetdate = new Date().toUTCString()
+
+            await svc.dao.update(user)
+                .catch(e => {
+                    console.log(e)
+                    res.status(500).end()
+                })
+
+            svc.sendResetPasswordEmail(user)
             res.status(200).end()
         }
         catch (e)
@@ -158,5 +186,36 @@ module.exports = (app, svc, dirName, jwt) => {
         {
             res.status(400).end()
         }
+    })
+
+    app.get("/useraccount/resetCode/:code", async (req, res) => {
+        try
+        {
+            const useraccount = await svc.dao.getByResetCode(req.params.code)
+            if(useraccount === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(useraccount)
+        }
+        catch(e)
+        {
+            res.status(400).end()
+        }
+    })
+
+    app.put("/useraccount/reset",  async (req, res) => {
+        const user = req.body
+        if ((user.id === undefined) || (user.id == null))
+        {
+            return res.status(400).end()
+        }
+
+        svc.update(user)
+            .then(res.status(200).end())
+            .catch(e => {
+                console.log(e)
+                res.status(500).end()
+            })
     })
 }

@@ -1,6 +1,6 @@
 module.exports = class UserAccount
 {
-    constructor(displayName, login, challenge, active, confirmation, confirmationDate)
+    constructor(displayName, login, challenge, active, confirmation, confirmationDate, reset, resetDate)
     {
         this.id = null
         this.displayName = displayName
@@ -9,5 +9,7 @@ module.exports = class UserAccount
         this.active = active
         this.confirmation = confirmation
         this.confirmationDate = confirmationDate
+        this.reset = reset
+        this.resetDate = resetDate
     }
 }

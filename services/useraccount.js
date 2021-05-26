@@ -31,6 +31,12 @@ module.exports = class UserAccountService
         return this.dao.insert(new UserAccount(displayname, login, this.hashPassword(password), false, null, null))
     }
 
+    update(user)
+    {
+        user.challenge = this.hashPassword(user.challenge)
+        return this.dao.update(user)
+    }
+
     async validatePassword(login, password)
     {
         const user = await this.dao.getByLogin(login.trim())
@@ -55,15 +61,37 @@ module.exports = class UserAccountService
         return bcrypt.hashSync(password, 10)  // 10 : cost factor -> + élevé = hash + sûr
     }
 
-    generateConfirmation()
+    generateLink()
     {
-        let confirmation = '';
+        let link = '';
         for (let i = 0; i < 25; i++)
         {
-            confirmation += characters[Math.floor(Math.random() * characters.length )];
+            link += characters[Math.floor(Math.random() * characters.length )];
         }
 
-        return confirmation
+        return link
+    }
+
+    sendResetPasswordEmail(user)
+    {
+        const transport = nodemailer.createTransport({
+            service: "Gmail",
+            auth: {
+                user: "abonnet84000@gmail.com",
+                pass: "franck121997!",
+            }
+        })
+
+        transport.sendMail({
+            from: "abonnet84000@gmail.com",
+            to: user.login,
+            subject: "Reinitialisation de votre mot de passe",
+            html: `<h1>Email de reinitialisation</h1>
+                   <h2>Bonjour ${user.displayname}</h2>
+                   <p>Afin de réinitialiser votre mot de passe veuillez cliquer sur le lien ci-dessous</p>
+                   <a href=http://localhost:63342/JS-Front/reset.html?${user.reset}>Cliquez ici</a>
+                   <p>http://localhost:63342/JS-Front/reset.html?${user.reset}</p>`
+        }).catch(err => console.log(err))
     }
 
     sendConfirmationEmail(user)
@@ -82,8 +110,8 @@ module.exports = class UserAccountService
             subject: "Veuillez confirmer votre compte",
             html: `<h1>Email de confirmation</h1>
                    <h2>Bonjour ${user.displayname}</h2>
-                   <p>Nous vous remercions de votre inscription. Merci de verifier votre email en cliquant sur le lien ci-dessous</p>
-                    <a href=http://localhost:3333/useraccount/confirm/${user.confirmation}> Cliquer ici</a>`
+                   <p>Nous vous remercions de votre inscription. Merci de verifier votre email en cliquant sur le lien ci-dessous</p> 
+                    <a href=http://localhost:3333/useraccount/confirm/${user.confirmation}> Cliquez ici</a>`
         }).catch(err => console.log(err))
     }
 
@@ -93,5 +121,12 @@ module.exports = class UserAccountService
         const seconds = milliseconds / 1000
         const minuts = seconds / 60
         return Math.trunc(minuts / 60)
+    }
+
+    getMinutsDifference(date)
+    {
+        const milliseconds = new Date().getTime() - date.getTime()
+        const seconds = milliseconds / 1000
+        return Math.trunc(seconds / 60)
     }
 }

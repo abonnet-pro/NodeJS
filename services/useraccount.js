@@ -31,9 +31,19 @@ module.exports = class UserAccountService
         return this.dao.insert(new UserAccount(displayname, login, this.hashPassword(password), false, null, null))
     }
 
-    update(user)
+    async update(user)
     {
-        user.challenge = this.hashPassword(user.challenge)
+        let prevUser = await this.dao.getById(user.id)
+
+        if(!this.comparePassword(user.challenge, prevUser.challenge) && user.challenge !== prevUser.challenge)
+        {
+            user.challenge = this.hashPassword(user.challenge)
+        }
+        else
+        {
+            user.challenge = prevUser.challenge
+        }
+
         return this.dao.update(user)
     }
 

@@ -85,9 +85,8 @@ module.exports = (app, svc, dirName, jwt) => {
                     })
 
                 svc.sendConfirmationEmail(user)
+                res.status(200).end()
             }
-
-            res.status(200).end()
         }
         catch (e)
         {
@@ -172,6 +171,22 @@ module.exports = (app, svc, dirName, jwt) => {
         }
     })
 
+    app.get("/useraccount/login/:login", jwt.validateJWT, async (req, res) => {
+        try
+        {
+            const useraccount = await svc.dao.getByLogin(req.params.login)
+            if(useraccount === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(useraccount)
+        }
+        catch(e)
+        {
+            res.status(400).end()
+        }
+    })
+
     app.get("/useraccount/id/:id", jwt.validateJWT, async (req, res) => {
         try
         {
@@ -205,6 +220,21 @@ module.exports = (app, svc, dirName, jwt) => {
     })
 
     app.put("/useraccount/reset",  async (req, res) => {
+        const user = req.body
+        if ((user.id === undefined) || (user.id == null))
+        {
+            return res.status(400).end()
+        }
+
+        svc.update(user)
+            .then(res.status(200).end())
+            .catch(e => {
+                console.log(e)
+                res.status(500).end()
+            })
+    })
+
+    app.put("/useraccount", jwt.validateJWT, async (req, res) => {
         const user = req.body
         if ((user.id === undefined) || (user.id == null))
         {

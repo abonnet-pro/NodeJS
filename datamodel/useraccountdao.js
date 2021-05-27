@@ -40,7 +40,7 @@ module.exports = class UserAccountDAO extends BaseDAO
                 .catch(err => reject(err)))
     }
 
-    getLikeLogin(login, userId)
+    getLikeLoginForShare(login, userId)
     {
         return new Promise((resolve, reject) => {
             this.db.query("SELECT id, displayname, login FROM useraccount WHERE (login LIKE $1 || '%' OR displayname LIKE $1 || '%') AND id != $2", [login, userId])
@@ -49,9 +49,28 @@ module.exports = class UserAccountDAO extends BaseDAO
         })
     }
 
+    getLikeLogin(login)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT id, displayname, login FROM useraccount WHERE (login LIKE $1 || '%' OR displayname LIKE $1 || '%')", [login])
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
+
+
     update(useraccount)
     {
         return this.db.query("UPDATE useraccount SET displayname=$1, login=$2, challenge=$3, active=$4, confirmation=$5, confirmationdate=$6, reset=$7, resetdate=$8 WHERE id=$9",
             [useraccount.displayname, useraccount.login, useraccount.challenge,useraccount.active, useraccount.confirmation, useraccount.confirmationdate, useraccount.reset, useraccount.resetdate, useraccount.id])
+    }
+
+    getAllUsers()
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT * FROM useraccount")
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
     }
 }

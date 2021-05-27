@@ -1,4 +1,4 @@
-module.exports = (app, svc, dirName, jwt) => {
+module.exports = (app, svc, roleService, dirName, jwt) => {
     app.post('/useraccount/authenticate', (req, res) => {
         const { login, password } = req.body
         if ((login === undefined) || (password === undefined)) {
@@ -154,10 +154,27 @@ module.exports = (app, svc, dirName, jwt) => {
         }
     })
 
+    app.get("/useraccount/share/:login", jwt.validateJWT, async (req, res) => {
+        try
+        {
+            const userList = await svc.dao.getLikeLoginForShare(req.params.login, req.user.id)
+            if(userList === undefined)
+            {
+                res.status(404).end()
+            }
+            return res.json(userList)
+        }
+        catch (e)
+        {
+            console.log(e.toString())
+            res.status(400).end()
+        }
+    })
+
     app.get("/useraccount/:login", jwt.validateJWT, async (req, res) => {
         try
         {
-            const userList = await svc.dao.getLikeLogin(req.params.login, req.user.id)
+            const userList = await svc.dao.getLikeLogin(req.params.login)
             if(userList === undefined)
             {
                 res.status(404).end()
@@ -247,5 +264,26 @@ module.exports = (app, svc, dirName, jwt) => {
                 console.log(e)
                 res.status(500).end()
             })
+    })
+
+    app.get("/useraccount", jwt.validateJWT, async (req, res) => {
+        try
+        {
+            if(! await roleService.isAdmin(req.user.login))
+            {
+                res.status(401).end()
+            }
+
+            const users = await svc.dao.getAllUsers()
+            if(users === undefined)
+            {
+                res.status(404).end()
+            }
+
+            return res.json(users)
+        }
+        catch (e) {
+            res.status(400).end()
+        }
     })
 }

@@ -140,6 +140,8 @@ module.exports = (app, svc, roleService, dirName, jwt) => {
 
             user.active = true
 
+            roleService.dao.insert(user.id, "USER")
+
             await svc.dao.update(user)
                 .then( res.sendFile(`${dirName}\\view\\confirmation.html`))
                 .catch(e => {
@@ -174,6 +176,10 @@ module.exports = (app, svc, roleService, dirName, jwt) => {
     app.get("/useraccount/:login", jwt.validateJWT, async (req, res) => {
         try
         {
+            if(! await roleService.isAdmin(req.user.login))
+            {
+                res.status(401).end()
+            }
             const userList = await svc.dao.getLikeLogin(req.params.login)
             if(userList === undefined)
             {
@@ -256,6 +262,11 @@ module.exports = (app, svc, roleService, dirName, jwt) => {
         if ((user.id === undefined) || (user.id == null))
         {
             return res.status(400).end()
+        }
+
+        if(user.id !== req.user.id && !roleService.isAdmin(req.user.login))
+        {
+            return res.status(401).end()
         }
 
         svc.update(user)

@@ -7,11 +7,11 @@ module.exports = class RoleDAO extends BaseDAO
         super(db, "role")
     }
 
-    insert(role)
+    insert(iduser, role)
     {
         return new Promise((resolve, reject) =>
             this.db.query("INSERT INTO role(iduser, role) VALUES ($1,$2) RETURNING ID",
-                [role.iduser, role.role])
+                [iduser, role])
                 .then(res => resolve(res.rows[0].id) )
                 .catch(e => reject(e)))
     }
@@ -23,5 +23,28 @@ module.exports = class RoleDAO extends BaseDAO
                 .then(res => resolve(res.rows))
                 .catch(err => reject(err))
         })
+    }
+
+    getRole(role)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT * FROM role WHERE role.iduser = $1 AND role.role = $2", [role.iduser, role.role])
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
+
+    getRolesByUserId(id)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT * FROM role WHERE role.iduser = $1", [id])
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
+
+    deleteRolesByUserId(id)
+    {
+        return this.db.query(`DELETE FROM role WHERE iduser=$1`, [id])
     }
 }

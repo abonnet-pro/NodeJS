@@ -1,4 +1,4 @@
-module.exports = (app, listService, itemService, shareService, jwt) =>
+module.exports = (app, listService, itemService, shareService, userAccountService, jwt) =>
 {
     app.get("/list/", jwt.validateJWT, async (req, res) => {
         try
@@ -7,6 +7,10 @@ module.exports = (app, listService, itemService, shareService, jwt) =>
             if(list === undefined)
             {
                 res.status(404).end()
+            }
+            if(! await userAccountService.isActive(req.user.login))
+            {
+                res.status(401).end()
             }
             return res.json(list)
         }
@@ -67,11 +71,15 @@ module.exports = (app, listService, itemService, shareService, jwt) =>
         }
     })
 
-    app.post("/list", jwt.validateJWT,(req, res) => {
+    app.post("/list", jwt.validateJWT, async (req, res) => {
         const list = req.body
         if (!listService.isValid(list))
         {
             return res.status(400).end()
+        }
+        if(! await userAccountService.isActive(req.user.login))
+        {
+            return res.status(401).end()
         }
 
         list.idUser = req.user.id

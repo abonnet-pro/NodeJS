@@ -27,7 +27,7 @@ const roleService = new RoleService(db)
 const jwt = require('./jwt')(userAccountService)
 const dirName = __dirname
 
-require('./api/list')(app, listService, itemService, shareService, jwt)
+require('./api/list')(app, listService, itemService, shareService, userAccountService, jwt)
 require('./api/item')(app, itemService, listService, shareService, jwt)
 require('./api/useraccount')(app, userAccountService, roleService, dirName, jwt)
 require('./api/share')(app, shareService, jwt)

@@ -61,6 +61,13 @@ module.exports = class UserAccountService
         return true
     }
 
+    async isActive(login)
+    {
+        const user = await this.dao.getByLogin(login)
+        if (user.active === true && user.confirmation === null) return true
+        return false
+    }
+
     comparePassword(password, hash)
     {
         return bcrypt.compareSync(password, hash)

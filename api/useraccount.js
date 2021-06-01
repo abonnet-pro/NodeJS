@@ -7,7 +7,7 @@ module.exports = (app, svc, roleService, dirName, jwt) => {
         }
         svc.validatePassword(login, password)
             .then(async authenticated => {
-                if (!authenticated) {
+                if (!authenticated || ! await svc.isActive(login)) {
                     res.status(401).end()
                     return
                 }
@@ -139,6 +139,8 @@ module.exports = (app, svc, roleService, dirName, jwt) => {
             }
 
             user.active = true
+            user.confirmation = null
+            user.confirmationdate = null
 
             roleService.dao.insert(user.id, "USER")
 

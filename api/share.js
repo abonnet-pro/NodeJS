@@ -2,7 +2,6 @@ module.exports = (app, shareService, jwt) =>
 {
     app.post("/share", jwt.validateJWT,(req, res) => {
         const share = req.body
-        console.log(share)
         share.idusersend = req.user.id
         if (!shareService.isValid(share))
         {

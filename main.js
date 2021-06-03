@@ -30,8 +30,8 @@ const jwt = require('./jwt')(userAccountService)
 const dirName = __dirname
 
 require('./api/list')(app, listService, itemService, shareService, userAccountService, jwt)
-require('./api/item')(app, itemService, listService, shareService, jwt)
-require('./api/useraccount')(app, userAccountService, roleService, dirName, jwt)
+require('./api/item')(app, itemService, listService, shareService, notificationService, jwt)
+require('./api/useraccount')(app, userAccountService, roleService, notificationService, listService, dirName, jwt)
 require('./api/share')(app, shareService, jwt)
 require('./api/role')(app, roleService, jwt)
 require('./api/notification')(app, notificationService, roleService, jwt)

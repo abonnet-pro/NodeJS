@@ -1,4 +1,4 @@
-module.exports = (app, svc, roleService, dirName, jwt) => {
+module.exports = (app, svc, roleService, notificationService, listService, dirName, jwt) => {
     app.post('/useraccount/authenticate', (req, res) => {
         const { login, password } = req.body
         if ((login === undefined) || (password === undefined)) {
@@ -16,6 +16,17 @@ module.exports = (app, svc, roleService, dirName, jwt) => {
                     res.status(403).end()
                     return
                 }
+
+                let user = await svc.dao.getByLogin(login)
+                let lists = await listService.dao.getAll(user)
+                for(let list of lists)
+                {
+                    if(svc.dateDiff(new Date(), list.date).day >= 7)
+                    {
+                        await notificationService.insertExpireListNotification(user.id, list)
+                    }
+                }
+
                 res.json({'token': jwt.generateJWT(login)})
             })
             .catch(e => {
@@ -143,6 +154,7 @@ module.exports = (app, svc, roleService, dirName, jwt) => {
             user.confirmationdate = null
 
             roleService.dao.insert(user.id, "USER")
+            notificationService.insertWelcomeNotification(user.id)
 
             await svc.dao.update(user)
                 .then( res.sendFile(`${dirName}\\view\\confirmation.html`))

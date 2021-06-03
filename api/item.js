@@ -1,4 +1,4 @@
-module.exports = (app, itemService, listService, shareService, jwt) =>
+module.exports = (app, itemService, listService, shareService, notificationService, jwt) =>
 {
     app.get("/item", jwt.validateJWT, async (req, res) => {
         res.json(await itemService.dao.getAll())
@@ -56,6 +56,12 @@ module.exports = (app, itemService, listService, shareService, jwt) =>
         if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
             return res.status(403).end()
         }
+
+        if(await shareService.isListShare(list.iduser, req.user.id) && list.iduser !== req.user.id && !await notificationService.checkNotificationShareExist(list.iduser))
+        {
+            await notificationService.insertShareNotification(list.iduser, list.shop, req.user.displayname)
+        }
+
         itemService.dao.insert(item)
             .then(res.status(200).end())
             .catch(e => {
@@ -76,6 +82,12 @@ module.exports = (app, itemService, listService, shareService, jwt) =>
             if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
                 return res.status(403).end()
             }
+
+            if(await shareService.isListShare(list.iduser, req.user.id) && list.iduser !== req.user.id && !await notificationService.checkNotificationShareExist(list.iduser))
+            {
+                await notificationService.insertShareNotification(list.iduser, list.shop, req.user.displayname)
+            }
+
             itemService.dao.delete(req.params.id)
                 .then(res.status(200).end())
                 .catch(e => {
@@ -104,6 +116,12 @@ module.exports = (app, itemService, listService, shareService, jwt) =>
         if (list.iduser !== req.user.id && !await shareService.isListShare(list.iduser, req.user.id)) {
             return res.status(403).end()
         }
+
+        if(await shareService.isListShare(list.iduser, req.user.id) && list.iduser !== req.user.id && !await notificationService.checkNotificationShareExist(list.iduser))
+        {
+            await notificationService.insertShareNotification(list.iduser, list.shop, req.user.displayname)
+        }
+
         itemService.dao.update(item)
             .then(res.status(200).end())
             .catch(e => {

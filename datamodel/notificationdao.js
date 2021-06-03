@@ -30,4 +30,13 @@ module.exports = class NotificationDAO extends BaseDAO
         return this.db.query("UPDATE notification SET idusersend=$2, iduserreceive=$3, title=$4, message=$5, date=$6, read=$7 WHERE id=$1",
             [notification.id, notification.idusersend, notification.iduserreceive, notification.title, notification.message, notification.date, notification.read])
     }
+
+    checkNotificationShareExist(iduserreceive)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT COUNT(*) AS nombre FROM notification WHERE iduserreceive = $1 AND read = false AND title = 'Liste modifié !'", [iduserreceive])
+                .then(res => resolve(res.rows[0].nombre))
+                .catch(err => reject(err))
+        })
+    }
 }

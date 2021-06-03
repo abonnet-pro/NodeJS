@@ -19,7 +19,7 @@ module.exports = class NotificationDAO extends BaseDAO
     getNotificationsByLogin(login)
     {
         return new Promise((resolve, reject) => {
-            this.db.query("SELECT notification.* FROM notification INNER JOIN useraccount on notification.iduserreceive = useraccount.id WHERE useraccount.login = $1 AND read = false", [login])
+            this.db.query("SELECT notification.* FROM notification INNER JOIN useraccount on notification.iduserreceive = useraccount.id WHERE useraccount.login = $1 AND read = false ORDER BY id DESC", [login])
                 .then(res => resolve(res.rows))
                 .catch(err => reject(err))
         })

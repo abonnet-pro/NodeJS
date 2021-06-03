@@ -29,14 +29,17 @@ module.exports = class NotificationService
             title: notification.title,
             message: notification.message,
             sound: false,
-            wait : true,
+            wait : false,
             actions: ['OK', 'ANNULER']
-        })
-
-        notifier.on('ok', async () => {
-            //notification.read = true
-            console.log(notification)
-            await this.dao.update(notification)
-        })
+        },
+            async function (err, response, metadata) {
+                if(response === "ok")
+                {
+                    notification.read = true
+                    console.log(notification)
+                    console.log(this.dao)
+                    await this.dao.update(notification)
+                }
+            })
     }
 }

@@ -13,8 +13,6 @@ module.exports = (app, notificationService, roleService, jwt) =>
             return res.status(401).end()
         }
 
-        notificationService.sendNotification(notification)
-
         notificationService.dao.insert(notification)
             .then(res.status(200).end())
             .catch(e => {
@@ -33,7 +31,7 @@ module.exports = (app, notificationService, roleService, jwt) =>
 
         try
         {
-            await notificationService.sendNotification(notification)
+            notificationService.sendNotification(notification)
             res.status(200).end()
         }
         catch(e)
@@ -57,5 +55,25 @@ module.exports = (app, notificationService, roleService, jwt) =>
         {
             res.status(400).end()
         }
+    })
+
+    app.put("/notification", jwt.validateJWT, async (req, res) => {
+        const notification = req.body
+        if (!notificationService.isValid(notification))
+        {
+            return res.status(400).end()
+        }
+
+        if(notification.iduserreceive !== req.user.id)
+        {
+            return res.status(403).end()
+        }
+
+        notificationService.dao.update(notification)
+            .then(res.status(200).end())
+            .catch(e => {
+                console.log(e)
+                res.status(500).end()
+            })
     })
 }

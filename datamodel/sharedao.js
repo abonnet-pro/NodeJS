@@ -37,7 +37,7 @@ module.exports = class ShareDAO extends BaseDAO
     getShareReceive(iduserreceive)
     {
         return new Promise((resolve, reject) => {
-            this.db.query("SELECT * FROM share WHERE iduserreceive = $1", [iduserreceive])
+            this.db.query("SELECT share.* FROM share INNER JOIN list ON share.idlist = list.id WHERE iduserreceive = $1 AND list.archived = false", [iduserreceive])
                 .then(res => resolve(res.rows))
                 .catch(err => reject(err))
         })

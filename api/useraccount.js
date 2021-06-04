@@ -21,7 +21,7 @@ module.exports = (app, svc, roleService, notificationService, listService, dirNa
                 let lists = await listService.dao.getAll(user)
                 for(let list of lists)
                 {
-                    if(svc.dateDiff(new Date(), list.date).day >= 7)
+                    if(svc.dateDiff(new Date(), list.date).day <= -7)
                     {
                         await notificationService.insertExpireListNotification(user.id, list)
                     }

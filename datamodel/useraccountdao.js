@@ -73,4 +73,22 @@ module.exports = class UserAccountDAO extends BaseDAO
                 .catch(err => reject(err))
         })
     }
+
+    getSubUsers()
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT useraccount.* FROM useraccount INNER JOIN role ON role.iduser = useraccount.id WHERE role.role = 'SUB'")
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
+
+    getSubUsersLikeLogin(login)
+    {
+        return new Promise((resolve, reject) => {
+            this.db.query("SELECT useraccount.* FROM useraccount INNER JOIN role ON role.iduser = useraccount.id WHERE role.role = 'SUB' AND (login LIKE $1 || '%' OR displayname LIKE $1 || '%')", [login])
+                .then(res => resolve(res.rows))
+                .catch(err => reject(err))
+        })
+    }
 }

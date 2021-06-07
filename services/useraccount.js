@@ -132,6 +132,30 @@ module.exports = class UserAccountService
         }).catch(err => console.log(err))
     }
 
+    sendConfirmSubscribeEmail(user, title, price, date)
+    {
+        const transport = nodemailer.createTransport({
+            service: "Gmail",
+            auth: {
+                user: "abonnet84000@gmail.com",
+                pass: "franck121997!",
+            }
+        })
+
+        transport.sendMail({
+            from: "abonnet84000@gmail.com",
+            to: user.login,
+            subject: "Confirmation de paiement",
+            html: `<h2>Bonjour ${user.displayname}</h2>
+                   <p>Nous vous confirmons l'achat de : <strong>${title}</strong></p>
+                   <p>Date : <strong>${date}</strong></p>
+                   <p>Montant : <strong>${price} EUR</strong></p>
+                   <p>Nous vous remercions de l'interet que vous portez à notre application.</p>
+                   <p>Cordialement,</p>
+                   <p>L'equipe ShoppingInc.</p>`
+        }).catch(err => console.log(err))
+    }
+
     getHoursDifference(date)
     {
         const milliseconds = new Date().getTime() - date.getTime()

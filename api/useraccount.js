@@ -1,4 +1,4 @@
-module.exports = (app, svc, roleService, notificationService, listService, dirName, jwt) => {
+module.exports = (app, svc, roleService, notificationService, listService, paymentService, dirName, jwt) => {
     app.post('/useraccount/authenticate', (req, res) => {
         const { login, password } = req.body
         if ((login === undefined) || (password === undefined)) {
@@ -310,5 +310,68 @@ module.exports = (app, svc, roleService, notificationService, listService, dirNa
         catch (e) {
             res.status(400).end()
         }
+    })
+
+    app.get("/useraccount/sub/all", jwt.validateJWT, async (req, res) => {
+        try
+        {
+            if(! await roleService.isAdmin(req.user.login))
+            {
+                res.status(401).end()
+            }
+
+            const users = await svc.dao.getSubUsers()
+            if(users === undefined)
+            {
+                res.status(404).end()
+            }
+
+            console.log("ici")
+
+            return res.json(users)
+        }
+        catch (e) {
+            res.status(400).end()
+        }
+    })
+
+    app.get("/useraccount/sub/:login", jwt.validateJWT, async (req, res) => {
+        try
+        {
+            if(! await roleService.isAdmin(req.user.login))
+            {
+                res.status(401).end()
+            }
+
+            const users = await svc.dao.getSubUsersLikeLogin(req.params.login)
+            if(users === undefined)
+            {
+                res.status(404).end()
+            }
+
+            return res.json(users)
+        }
+        catch (e) {
+            res.status(400).end()
+        }
+    })
+
+
+    app.post("/useraccount/payment", jwt.validateJWT, async (req, res) => {
+        const {iduser, title, price, date} = req.body
+
+        if(parseInt(iduser) !== req.user.id)
+        {
+            res.status(401).end()
+        }
+
+        svc.sendConfirmSubscribeEmail(req.user, title, price, date)
+
+        paymentService.dao.insert(iduser, title, price, date)
+            .then(res.status(200).end())
+            .catch(e => {
+                console.log(e)
+                res.status(500).end()
+            })
     })
 }

@@ -106,7 +106,7 @@ module.exports = class UserAccountService
             html: `<h1>Email de reinitialisation</h1>
                    <h2>Bonjour ${user.displayname}</h2>
                    <p>Afin de réinitialiser votre mot de passe veuillez cliquer sur le lien ci-dessous</p>
-                   <a href=http://localhost:63342/JS-Front/reset.html?${user.reset}>Cliquez ici</a>
+                   <a href=http://ec2-54-164-198-238.compute-1.amazonaws.com:3333/JS-Front/reset.html?${user.reset}>Cliquez ici</a>
                    <p>http://localhost:63342/JS-Front/reset.html?${user.reset}</p>`
         }).catch(err => console.log(err))
     }
@@ -128,7 +128,7 @@ module.exports = class UserAccountService
             html: `<h1>Email de confirmation</h1>
                    <h2>Bonjour ${user.displayname}</h2>
                    <p>Nous vous remercions de votre inscription. Merci de verifier votre email en cliquant sur le lien ci-dessous</p> 
-                    <a href=http://localhost:3333/useraccount/confirm/${user.confirmation}> Cliquez ici</a>`
+                    <a href=http://ec2-54-164-198-238.compute-1.amazonaws.com:3333/useraccount/confirm/${user.confirmation}> Cliquez ici</a>`
         }).catch(err => console.log(err))
     }
 

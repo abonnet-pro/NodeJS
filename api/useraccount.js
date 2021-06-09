@@ -7,13 +7,13 @@ module.exports = (app, svc, roleService, notificationService, listService, payme
         }
         svc.validatePassword(login, password)
             .then(async authenticated => {
-                if (!authenticated || ! await svc.isActive(login)) {
-                    res.status(401).end()
-                    return
-                }
                 if(! await svc.validateEmail(login))
                 {
                     res.status(403).end()
+                    return
+                }
+                if (!authenticated || ! await svc.isActive(login)) {
+                    res.status(401).end()
                     return
                 }
 

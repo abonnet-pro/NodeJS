@@ -57,7 +57,7 @@ module.exports = class UserAccountService
     async validateEmail(login)
     {
         const user = await this.dao.getByLogin(login)
-        if(user.active === false) return false
+        if(user.active === false && user.confirmation !== null) return false
         return true
     }
 

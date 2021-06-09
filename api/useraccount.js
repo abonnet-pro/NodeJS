@@ -145,7 +145,7 @@ module.exports = (app, svc, roleService, notificationService, listService, payme
 
             if(svc.getHoursDifference(user.confirmationdate) >= 24 && !user.active)
             {
-                res.sendFile(`${dirName}\\view\\expire.html`)
+                res.sendFile(`${dirName}/view/expire.html`)
                 return
             }
 
@@ -157,7 +157,7 @@ module.exports = (app, svc, roleService, notificationService, listService, payme
             notificationService.insertWelcomeNotification(user.id)
 
             await svc.dao.update(user)
-                .then( res.sendFile(`${dirName}\\view\\confirmation.html`))
+                .then( res.sendFile(`${dirName}/view/confirmation.html`))
                 .catch(e => {
                     console.log(e)
                     res.status(500).end()
